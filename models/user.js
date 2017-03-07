@@ -42,7 +42,8 @@ var smtpConfig = {
     }
 };
 var transporter = nodemailer.createTransport(smtpConfig);
-var connection = mongoose.createConnection("mongodb://petercha:peter4682!@ds019806.mlab.com:19806/green_mate");
+var connection = mongoose.connect("mongodb://test9900:peter4682!@ds115110.mlab.com:15110/test9900");
+
 
 autoIncrement.initialize(connection);
 
