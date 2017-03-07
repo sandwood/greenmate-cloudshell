@@ -1,0 +1,16 @@
+extends ./layout
+
+
+block content
+    h1 Upload
+
+    form(action="/upload/" method="POST" enctype="multipart/form-data")
+        input(type="text" name="username" placeholder="username" required)
+        input(type="file" name="file1")
+        input(type="file" name="file2")
+        input(type="submit" value="Upload")
+        
+    ul
+        li Download a(class='button' href="/Cute-Red-Bunny.jpg") Cute-Red-Bunny.jpg
+        li Download a(class='button' href="/bunny2.jpg") bunny2.jpg
+        

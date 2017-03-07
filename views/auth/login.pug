@@ -1,0 +1,20 @@
+extends ../layout
+
+block content
+    h1 Login
+
+    form(action="/login/" method="POST")
+        input(type="text" name="id" placeholder="email" required)
+        input(type="password" name="password" placeholder="password" required)
+        input(type="submit" value="submit")
+   
+    // form(action="/auth/facebook/" method = "GET") 
+    //     input( type='checkbox'  name='keepLogin') 
+    //     | Keep logging in
+    //     input(type="submit" value="Log-in with facebook")
+    
+   
+        
+    button(onclick="location.href='https://green-mate2-petercha90.c9users.io/auth/facebook'") facebook
+    button(onclick="location.href='https://green-mate2-petercha90.c9users.io/auth/naver'") naver
+    button(onclick="location.href='https://green-mate2-petercha90.c9users.io/auth/kakao'") kakao

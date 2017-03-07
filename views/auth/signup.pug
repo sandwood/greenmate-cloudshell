@@ -1,0 +1,13 @@
+extends ../layout
+
+
+block content
+    h1 Signup
+
+    form(action="/signup/" method="POST")
+        input(type="text" name="username" placeholder="username" required)
+        input(type="email" name="id" placeholder="email" required)
+      
+        input(type="password" name="password" placeholder="password" required)
+       
+        input(type="submit" value="submit")

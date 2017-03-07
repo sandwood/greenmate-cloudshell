@@ -1,0 +1,13 @@
+extends ./layout
+
+block content 
+    h1 New Diary
+    
+    form(action="/manager/"+ userId +"/"+ plantId +"/diary" method="POST" enctype="multipart/form-data")
+        input(type="hidden" name="diaryCount" value= diaryCount)
+        input(type="hidden" name="bucket" value = bucket)
+        input(type="text" name="title" placeholder="title" required)
+        input(type="file" name="file1[]" accept="image/*" multiple="multiple")
+        input(type="text" name="comments" placeholder="type any comments")
+        input(type="submit" value="register")
+           

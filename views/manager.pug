@@ -1,0 +1,15 @@
+extends ./layout
+
+block content 
+    h1 Manager 
+    p Total #{plants.length} plants.
+    
+    ul
+        each plant in plants
+            li 
+                a(href="/manager/"+plant.userId+"/"+plant.plantId+"/diary") 
+                    img(src=plant.picUrl[0] width="300px" height="200px")
+                h3 식물이름: #{plant.plantName} 
+                p 주인: #{plant.userId}
+                hr()
+                br()
