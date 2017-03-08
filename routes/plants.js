@@ -36,9 +36,7 @@ router.post("/addPlant",function(req, res){
         }
         else{
                   
-            console.log(userId);        
-            var plantCount = user.plantCount;
-            plantCount++;
+            console.log(userId);       
             var plantId = "user_"+ user.userSeq +'-'+ Date.now();
             plantList = user.plants;
             plantList.push(plantId);
