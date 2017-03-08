@@ -37,6 +37,7 @@ var gcs = require('@google-cloud/storage')({
 
 var mongoose = require("mongoose");
 
+mongoose.createConnection("mongodb://test9900:peter4682!@ds115110.mlab.com:15110/test9900");
 var db = mongoose.connection;
 
 db.once("open", function() {
@@ -47,8 +48,6 @@ db.once("open", function() {
   //     console.log(err); 
   // }});
 });
-
-mongoose.connect("mongodb://test9900:peter4682!@ds115110.mlab.com:15110/test9900");
 mongoose.Promise = require('bluebird');
 var app = express();
 
