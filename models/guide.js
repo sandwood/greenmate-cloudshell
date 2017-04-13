@@ -1,29 +1,8 @@
 var mongoose = require("mongoose");
 mongoose.Promise = require('bluebird');
+var moment = require("moment-timezone");
 
-function dateForTimezone(offset, d) {
 
-  // Copy date if supplied or use current
-  d = d? new Date(+d) : new Date();
-
-  // Use supplied offset or system
-  offset = offset || -d.getTimezoneOffset();
-  // Prepare offset values
-  var offSign = offset < 0? '-' : '+'; 
-  offset = Math.abs(offset);
-  var offHours = ('0' + (offset/60 | 0)).slice(-2);
-  var offMins  = ('0' + (offset % 60)).slice(-2);
-
-  // Apply offset to d
-  d.setUTCMinutes(d.getUTCMinutes() + offset);
-
-  // Return formatted string
-  return d.getUTCFullYear() + 
-    '-' + ('0' + (d.getUTCMonth()+1)).slice(-2) + 
-    '-' + ('0' + d.getUTCDate()).slice(-2) + 
-    ' ' + ('0' + d.getUTCHours()).slice(-2) + 
-    ':' + ('0' + d.getUTCMinutes()).slice(-2);
-}
 
 var guideSchema = new mongoose.Schema({
 
@@ -56,7 +35,7 @@ var guideSchema = new mongoose.Schema({
   },
   published_date: {
     type: String,
-    default: dateForTimezone(+540)
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
   }
   
 });
@@ -81,7 +60,7 @@ guideSchema.statics.searchGuide = function(req, res){
   console.log(keyword);
   console.log(num, page);
   
-  Guide.find().sort({published_date: -1}).exec(function(error, guides){
+  Guide.find({block:0}).sort({published_date: -1}).exec(function(error, guides){
     
             if(error) {
               console.log(error); 
@@ -110,16 +89,24 @@ guideSchema.statics.searchGuide = function(req, res){
                           if(guide.title.toLowerCase().indexOf(keyword) > -1){
                             newData.push({
                               guideId : guide.guideId,
-                              title : guide.title
+                              title : guide.title,
+                              writer : guide.writer,
+                              block : guide.block,
+                              published_date: guide.published_date
                             });
                           }
-                          guide.contents.forEach(function(content){
-                            if(content.text.toLowerCase().indexOf(keyword) >-1)
-                              newData.push({
-                                guideId : guide.guideId,
-                                title : guide.title
-                              });
-                          })
+                          else{
+                            guide.contents.forEach(function(content){
+                              if(content.text.toLowerCase().indexOf(keyword) >-1)
+                                newData.push({
+                                  guideId : guide.guideId,
+                                  title : guide.title,
+                                  writer : guide.writer,
+                                  block : guide.block,
+                                  published_date: guide.published_date
+                                });
+                            })
+                          }
                       });
                       
                       if((page-1)*num+ num >= newData.length){

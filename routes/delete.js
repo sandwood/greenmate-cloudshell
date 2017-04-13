@@ -8,8 +8,7 @@ var Question = require("../models/question");
 
 
 //-------------------------- delete User ---------------------------
-router.put("/userDropOut/",
-    passport.authenticate('local'),
+router.get("/userDropOut/",
     function(req,res,next){
         User.update({userSeq : req.headers['userseq']},{$set: {block: 1}},function(err, user){
             if(err) {
@@ -19,13 +18,6 @@ router.put("/userDropOut/",
                 req.logout();
                 return res.status(200).json({isSuccess: 1, result : "delete successfully"});
         });
-    },
-    function(err, req, res, next){
-      if(err.status == 1)
-        return res.status(err.code).json({isSuccess : 0, err: err});
-      else{
-        return res.status(err.code).json({isSuccess : 0, err: err});
-      }
     }
 );
 
@@ -38,14 +30,11 @@ router.put("/deleteQuestion",function(req, res){
     Question.findOne({questionId : questionId}).exec(function(err, question){
         if(err) return res.status(err.code).json({isSuccess:0, err:err});
         
-        if(question.userSeq != userSeq){
-            return  res.json({isSuccess:0, err: "Not matched question owner."});
-        }
-        else{ 
+        
             question.block = 1;
             question.save();
             return res.status(200).json({isSuccess : 1});
-        }        
+                
     });
     
 });

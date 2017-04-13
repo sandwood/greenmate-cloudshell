@@ -24,10 +24,26 @@ var cors = require("cors");
 //added
 var str2json = require('string-to-json');
 var gcs = require('@google-cloud/storage')({
-  projectId: "greentest-159305",
+  projectId: "greentest-163904",
   keyFilename: '../config/keyfile',
   credentials: require('./config/keyfile')
 });
+//db updated every day Nthing!
+var request = require('request');
+
+var options = {
+  url: 'https://green-mate2-petercha90.c9users.io/nthing',
+  method: 'GET'
+}
+
+setInterval(function(){
+  request(options,function(error, response, body){
+  if(!error && response.statusCode ==200){
+    console.log("db updated!");
+  }
+})
+}, 24*60*60*1000);
+//Nthing!
 
 // var options = {
 //     entity: 'allUsers',
@@ -37,7 +53,6 @@ var gcs = require('@google-cloud/storage')({
 
 var mongoose = require("mongoose");
 
-mongoose.createConnection("mongodb://test9900:peter4682!@ds115110.mlab.com:15110/test9900");
 var db = mongoose.connection;
 
 db.once("open", function() {
@@ -48,6 +63,8 @@ db.once("open", function() {
   //     console.log(err); 
   // }});
 });
+
+mongoose.connect("mongodb://krazylab:eoqkr2014@aws-us-west-2-portal.2.dblayer.com:15914/green_mate");
 mongoose.Promise = require('bluebird');
 var app = express();
 

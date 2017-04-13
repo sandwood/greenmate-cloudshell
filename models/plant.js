@@ -1,31 +1,7 @@
-
+var nthing = require("../models/nthing");
 var mongoose = require("mongoose");
 mongoose.Promise = require('bluebird');
-
-function dateForTimezone(offset, d) {
-
-  // Copy date if supplied or use current
-  d = d? new Date(+d) : new Date();
-
-  // Use supplied offset or system
-  offset = offset || -d.getTimezoneOffset();
-  // Prepare offset values
-  var offSign = offset < 0? '-' : '+'; 
-  offset = Math.abs(offset);
-  var offHours = ('0' + (offset/60 | 0)).slice(-2);
-  var offMins  = ('0' + (offset % 60)).slice(-2);
-
-  // Apply offset to d
-  d.setUTCMinutes(d.getUTCMinutes() + offset);
-
-  // Return formatted string
-  return d.getUTCFullYear() + 
-    '-' + ('0' + (d.getUTCMonth()+1)).slice(-2) + 
-    '-' + ('0' + d.getUTCDate()).slice(-2) + 
-    ' ' + ('0' + d.getUTCHours()).slice(-2) + 
-    ':' + ('0' + d.getUTCMinutes()).slice(-2);
-}
-
+var moment = require("moment-timezone");
 
 
 var plantSchema = new mongoose.Schema({
@@ -58,6 +34,9 @@ var plantSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
+  manager : String,
+  factory : String,
+  gateway : String,
   species : {
     type : String
   },
@@ -85,8 +64,9 @@ var plantSchema = new mongoose.Schema({
   
   published_date: {
     type: String,
-    default: dateForTimezone(+540)
-  }
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
+  },
+  updated_at : String
 });
 
 
@@ -126,19 +106,32 @@ plantSchema.statics.getPlantInfo = function(req,res){
           msg : "no such plant."
         });
       }
-          
-      console.log(plant);
-
-      return res.status(200).json({
-                isSuccess : 1,
-                harvest : plant.harvest,
-                userId : plant.userId,
-                userSeq : plant.userSeq,
-                plantId : plant.plantId,
-                plantName : plant.plantName
-            });
       
-  });  
+        var sensor = [];  
+        console.log(plant);
+        if(plant.sensorData)
+            sensor = plant.sensorData;
+        
+        
+        return res.status(200).json({
+                  isSuccess : 1,
+                  harvest : plant.harvest,
+                  username : plant.username,
+                  userId : plant.userId,
+                  userSeq : plant.userSeq,
+                  manager : plant.manager,
+                  factory : plant.factory,
+                  plantId : plant.plantId,
+                  plantName : plant.plantName,
+                  sensorData : sensor,
+                  // 센서데이터가 다 들어 갔을 때 위의 sensorData : sensor코드를 아래 코드로 대체할 것 
+                  // sensorData : plant.sensorData,
+                  published_date : plant.published_date,
+                  updated_at : plant.updated_at
+              });
+   
+      });
+    
 };
 
 var Plant = mongoose.model("Plant", plantSchema);

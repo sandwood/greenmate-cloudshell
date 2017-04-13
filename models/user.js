@@ -5,30 +5,7 @@ var bcrypt = require("bcrypt");
 var jwt= require("jwt-simple");
 var nodemailer = require("nodemailer");
 var randomstring = require("randomstring");
-
-function dateForTimezone(offset, d) {
-
-  // Copy date if supplied or use current
-  d = d? new Date(+d) : new Date();
-
-  // Use supplied offset or system
-  offset = offset || -d.getTimezoneOffset();
-  // Prepare offset values
-  var offSign = offset < 0? '-' : '+'; 
-  offset = Math.abs(offset);
-  var offHours = ('0' + (offset/60 | 0)).slice(-2);
-  var offMins  = ('0' + (offset % 60)).slice(-2);
-
-  // Apply offset to d
-  d.setUTCMinutes(d.getUTCMinutes() + offset);
-
-  // Return formatted string
-  return d.getUTCFullYear() + 
-    '-' + ('0' + (d.getUTCMonth()+1)).slice(-2) + 
-    '-' + ('0' + d.getUTCDate()).slice(-2) + 
-    ' ' + ('0' + d.getUTCHours()).slice(-2) + 
-    ':' + ('0' + d.getUTCMinutes()).slice(-2);
-}
+var moment = require("moment-timezone");
 
 
 var secret = "krazylab";
@@ -37,13 +14,12 @@ var smtpConfig = {
     port: 465,
     secure: true, // use SSL
     auth: {
-        user: 'petercha90@gmail.com',
-        pass: 'peter4682#'
+        user: 'nexta5558100270@gmail.com',
+        pass: ' jupiter@3357'
     }
 };
 var transporter = nodemailer.createTransport(smtpConfig);
-var connection = mongoose.connect("mongodb://test9900:peter4682!@ds115110.mlab.com:15110/test9900");
-
+var connection = mongoose.createConnection("mongodb://krazylab:eoqkr2014@aws-us-west-2-portal.2.dblayer.com:15914/green_mate");
 
 autoIncrement.initialize(connection);
 
@@ -103,11 +79,11 @@ var userSchema = new mongoose.Schema({
   // timestamps: true 로 변경할 수 있습니다.
   created_at: {
     type: String,
-    default: dateForTimezone(+540)
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
   },
   updated_at: {
     type: String,
-    default: dateForTimezone(+540)
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
   }
 });
 
@@ -198,7 +174,8 @@ userSchema.statics.signup = function(req,res){
             
             user.save(function(error, user) {
               if(error){
-                  return res.status(error.code).json({isSuccess: 0, err: error});
+                  console.log(error);
+                  return res.json({isSuccess: 0, err: error});
               } 
               return res.status(201).json({isSuccess: 1});
             });

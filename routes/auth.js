@@ -3,9 +3,10 @@ var router = express.Router();
 var passport = require('passport');
 var multiparty=require('multiparty');
 var User = require("../models/user");
+var Noti = require("../models/noti");
 var authMiddleware = require("../middlewares/auth");
 var gcs = require('@google-cloud/storage')({
-  projectId: "greentest-159305",
+  projectId: "greentest-163904",
   keyFilename: '../config/keyfile',
   credentials: require('../config/keyfile')
 });
@@ -40,9 +41,11 @@ router.route("/login/")
       res.setHeader("Access-Control-Allow-Origin", "*");
       var deviceId = req.body.deviceToken;
       var userId = req.body.id;
+      var os = req.body.os;
+      console.log("-> received deviceId : "+deviceId);
       
       if(deviceId!=null){
-        User.update({id : userId},{$addToSet: {deviceId : deviceId}},function(err,tasks){
+        User.update({id : userId},{$addToSet: {deviceId : {os : os, deviceId : deviceId}}},function(err,tasks){
             if(err) {
                 console.log(err); 
                 return res.json({isSuccess: 0});
@@ -133,12 +136,35 @@ router.put("/deviceToken/",
     function(req,res,next){
         var userSeq = req.headers['userseq'];
         
-        User.update({userSeq : userSeq },{$addToSet: {deviceId: req.body.token}},function(err,tasks){
+        User.findOne({userSeq : userSeq},function(err,user){
             if(err) {
                 console.log(err); 
                 return res.json({isSuccess: 0});
             }
-            req.logout();
+            // console.log("=> userSeq:"+userSeq+" os:"+req.body.os+" key:"+req.body.token);
+            var devices = user.deviceId;
+            if(devices.length < 1) {
+              // console.log("=> has no token");
+              user.deviceId.push({
+                os : req.body.os,
+                deviceId : req.body.token
+              });
+            } else {
+              // console.log("=> has tokens");
+              devices.forEach(function(device){
+                if(device.deviceId.indexOf(req.body.token) < 0){
+                  // console.log("=> add more tokens");
+                  user.deviceId.push({
+                    os : req.body.os,
+                    deviceId : req.body.token
+                  });
+                }
+              });
+            }
+            
+            
+            user.save();
+            // req.logout();
             return res.status(200).json({isSuccess: 1, result : "registered successfully"});
         });
     },
@@ -250,6 +276,25 @@ router.get(
 });
 
 
+//------------------ userNotificationList --------------
+
+router.post('/userNotificationList', function(req, res, next) {
+  
+  var userSeq = req.headers['userseq'];
+  var page = req.body.page;
+  var pageNumber = Number(req.body.pageNumber);
+  
+  Noti.find({userSeq: userSeq}).exec(function(err, notis){
+    
+    if(err) return res.status(err.code).json({isSuccess:0, err: err});
+    return res.status(200).json({
+      isSuccess : 1,
+      notis : notis
+    });
+  });
+});
+
+
 
 //------------------- checkId middleware ----------------------------
 function checkId(req, res, next) {
@@ -263,5 +308,10 @@ function checkId(req, res, next) {
         res.send(403);
     }
 }
+
+
+
+
+
 
 module.exports = router;

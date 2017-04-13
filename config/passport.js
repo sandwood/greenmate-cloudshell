@@ -5,7 +5,7 @@ var NaverStrategy = require("passport-naver").Strategy;
 var request = require("request");
 
 var gcs = require('@google-cloud/storage')({
-  projectId: "greentest-159305",
+  projectId: "greentest-163904",
   keyFilename: '../config/keyfile',
   credentials: require('../config/keyfile')
 });

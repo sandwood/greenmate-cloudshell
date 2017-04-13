@@ -111,42 +111,52 @@ router.post("/addComment",function(req, res) {
     
     var questionId = req.body.questionId;
     
-    Question.findOne({questionId: questionId}, function(error, question) {
+    console.log(questionId);
+    
+    Question.findOne({$and :[{questionId: questionId},{block:0}]}, function(error, question) {
         
         if (error) return res.status(error.code).json({isSuccess: 0, err: error});
         else if (question == null) return res.status(204).json({isSuccess: 0, error: "No content"});
-        
-        
-        User.findOne({userSeq: req.headers['userseq']}).exec(function(err,user){
-            if(err) return res.status(err.code).json({isSuccess : 0, err: err});
-            if(user.authLevel == 1){
-                user.numberOfAnswer =+ 1;
-            }
-            var comment = {
-                writer: req.body.writer,
-                username : user.username,
-                comment: req.body.comment
-            };
-            
-            question.comments.push(comment);
-            
-            if(comment.writer == 1)
-                question.solved = true;
-            
-    
-            question.save(function(error, question) {
+        else{
+            User.findOne({userSeq: req.headers['userseq']}).exec(function(err,user){
                 if(err) return res.status(err.code).json({isSuccess : 0, err: err});
+                if(user.authLevel == 1){
+                    user.numberOfAnswer =+ 1;
+                }
                 
+                var comment = {
+                    commentId : "user_"+ req.headers['userseq'] +"-"+"QuestionCmt"+"-"+Date.now(),
+                    writer: req.body.writer,
+                    username : user.username,
+                    comment: req.body.comment
+                };
+                if(comment.writer == 1)
+                    question.solved = true;
+                question.comments.push(comment);
+                
+                question.save(function(error) {
+                    if(error) {console.log(error); return res.json({isSuccess : 0, err: error});}
+                    
+                    user.save(function(err){
+                        if(err) return res.status(err.code).json({isSuccess : 0, err: err});
+                        return res.status(201).json({isSuccess: 1});
+                    }); 
+                });
             });
-            user.save(function(err){
-                    if(err) return res.status(err.code).json({isSuccess : 0, err: err});
-                    return res.status(201).json({isSuccess: 1});
-            }); 
-            
-        });
-        
+        }
     });
-      
+});
+
+router.delete("/deleteComment", function(req, res){
+    
+    var questionId = req.body.questionId;
+    var commentId = req.body.commentId;
+    
+    Question.update({questionId : questionId},{$pull : {comments: {commentId: commentId}}}).exec(function(err){
+        
+        if(err) return res.status(err.code).json({isSuccess: 0});
+        return res.status(200).json({isSuccess: 1});
+    });
 });
 
 module.exports = router;

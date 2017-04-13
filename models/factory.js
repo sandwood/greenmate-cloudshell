@@ -1,29 +1,7 @@
 var mongoose = require("mongoose");
 mongoose.Promise = require('bluebird');
+var moment = require("moment-timezone");
 
-function dateForTimezone(offset, d) {
-
-  // Copy date if supplied or use current
-  d = d? new Date(+d) : new Date();
-
-  // Use supplied offset or system
-  offset = offset || -d.getTimezoneOffset();
-  // Prepare offset values
-  var offSign = offset < 0? '-' : '+'; 
-  offset = Math.abs(offset);
-  var offHours = ('0' + (offset/60 | 0)).slice(-2);
-  var offMins  = ('0' + (offset % 60)).slice(-2);
-
-  // Apply offset to d
-  d.setUTCMinutes(d.getUTCMinutes() + offset);
-
-  // Return formatted string
-  return d.getUTCFullYear() + 
-    '-' + ('0' + (d.getUTCMonth()+1)).slice(-2) + 
-    '-' + ('0' + d.getUTCDate()).slice(-2) + 
-    ' ' + ('0' + d.getUTCHours()).slice(-2) + 
-    ':' + ('0' + d.getUTCMinutes()).slice(-2);
-}
 
 var factorySchema = new mongoose.Schema({
 
@@ -45,7 +23,7 @@ var factorySchema = new mongoose.Schema({
   },
   published_date: {
     type: String,
-    default: dateForTimezone(+540)
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
   }
   
 });

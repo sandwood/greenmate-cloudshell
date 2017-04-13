@@ -9,7 +9,6 @@ router.get('/', function(req, res, next) {
         if(err) res.status(err.code).json({isSuccess: 0});
         else {
             res.status(200).json(info);
-            
         }
     });
 });
@@ -30,13 +29,13 @@ router.post('/', function(req, res){
         is_maintenance : is_maintenance
     });
     
-    appInfo1.save(function(error, plant) {
+    appInfo1.save(function(error) {
         if(error){
-            console.log(error);
+            return res.status(error.code).json({isSuccess: 0});
         }
+        return res.json({isSuccess : 1});
     });
     
-    return res.json({isSuccess : 1});
 });
 
 

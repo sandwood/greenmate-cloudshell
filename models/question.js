@@ -1,37 +1,22 @@
 var mongoose = require("mongoose");
+var autoIncrement = require("mongoose-auto-increment");
+var moment = require("moment-timezone");
+
+
+var connection = mongoose.createConnection("mongodb://krazylab:eoqkr2014@aws-us-west-2-portal.2.dblayer.com:15914/green_mate");
+
+autoIncrement.initialize(connection);
 mongoose.Promise = require('bluebird');
 
-function dateForTimezone(offset, d) {
-
-  // Copy date if supplied or use current
-  d = d? new Date(+d) : new Date();
-
-  // Use supplied offset or system
-  offset = offset || -d.getTimezoneOffset();
-  // Prepare offset values
-  var offSign = offset < 0? '-' : '+'; 
-  offset = Math.abs(offset);
-  var offHours = ('0' + (offset/60 | 0)).slice(-2);
-  var offMins  = ('0' + (offset % 60)).slice(-2);
-
-  // Apply offset to d
-  d.setUTCMinutes(d.getUTCMinutes() + offset);
-
-  // Return formatted string
-  return d.getUTCFullYear() + 
-    '-' + ('0' + (d.getUTCMonth()+1)).slice(-2) + 
-    '-' + ('0' + d.getUTCDate()).slice(-2) + 
-    ' ' + ('0' + d.getUTCHours()).slice(-2) + 
-    ':' + ('0' + d.getUTCMinutes()).slice(-2);
-}
 
 var commentSchema = new mongoose.Schema({
+  commentId : String,
   writer : Number,
   username : String,
   comment: String,
   published_date: {
       type: String,
-      default: dateForTimezone(+540)
+      default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm') 
     }
 });
 
@@ -40,6 +25,7 @@ var questionSchema = new mongoose.Schema({
   userSeq : {
     type : Number
   },
+  questionSeq : Number,
   userId:{
     type: String,
     required: true
@@ -52,6 +38,7 @@ var questionSchema = new mongoose.Schema({
     unique: true, 
     required: true
   },
+  
   block : Number,
   title:{
     type: String,
@@ -71,13 +58,15 @@ var questionSchema = new mongoose.Schema({
   },
   published_date: {
     type: String,
-    default: dateForTimezone(+540)
+    default: moment(Date.now()).tz('Asia/Tokyo').format('YYYY-MM-DD HH:mm')
   }
   
 });
 
+questionSchema.plugin(autoIncrement.plugin, {model:'Question', field: 'questionSeq'});
 
 questionSchema.pre("save", function(next) {
+  this.questionSeq += 1;
   return next();
 });
 
@@ -383,7 +372,6 @@ questionSchema.statics.getUserUnsolved = function(req,res){
 };
 
 commentSchema.pre("save", function(next) {
-  this.published_date = dateForTimezone(+540)
   next();
 });
 
@@ -420,7 +408,7 @@ questionSchema.statics.searchQuestion = function(req, res){
                       
                       questions.forEach(function(question){
                           
-                          if(question.title.toLowerCase().indexOf(keyword) > -1 || question.contents.toLowerCase().indexOf(keyword) >-1){
+                          if(question.title.toLowerCase().indexOf(keyword) > -1 || question.contents.toLowerCase().indexOf(keyword) >-1 || question.username.toLowerCase().indexOf(keyword) >-1){
                             
                             var numOfManagerReply=0;
               

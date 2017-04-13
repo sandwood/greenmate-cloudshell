@@ -4,21 +4,56 @@ var request = require("request");
 //var str2json = require("string-to-json");
 var Nthing = require("../models/nthing");
 
+//updated by 15 days
 var gateway = "f4b85e0294e9";
-var auth ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI0NzgxIiwiY2xpZW50SWQiOiJncmVlbm1hdGVzIiwiaWF0IjoxNDg2MDg1OTI3LCJleHAiOjE0ODczODE5Mjd9.3HeQKhmA9sBmqCZeW3IIOJWikFq_nqj1ekIH1BpSE0Y"
+//if token expired, you might visit below site to renew the token (15days durations)
+//https://accounts.thingplus.net/api/oauth2/authorize?response_type=code&client_id=greenmate&redirect_uri=https://green-mate2-petercha90.c9users.io/
+
+var auth ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI0NzgxIiwiY2xpZW50SWQiOiJncmVlbm1hdGUiLCJpYXQiOjE0OTA2MDk0MTYsImV4cCI6MTQ5MTkwNTQxNn0.E5MJ15tamGlVrCcc5euIdUDs8VSSFW14fThiyj502QI"
+
 var date = new Date();
-var hum1 =[];
-var hum2 =[];
-var hum3 =[];
-var hum4 =[];
-var hum5 =[];
-var light1 =[];
-var light2 = [];
-var temper1=[];
-var temper2=[];
-var datastart ="2017-01-01T00:00:00.000Z";
-var dataend ="2017-01-31T00:00:00.000Z";
-var interval ="30m";
+date.setHours(date.getHours()+9);
+var month = date.getMonth()+1;
+var preDate = new Date();
+preDate.setHours(preDate.getHours()+9);
+preDate.setDate(preDate.getDate()-1);
+var preMonth = preDate.getMonth()+1;
+var hum1 = new Array();
+var hum2 =new Array();
+var hum3 =new Array();
+var hum4 =new Array();
+var hum5 =new Array();
+var light1 =new Array();
+var light2 = new Array();
+var temper1=new Array();
+var temper2=new Array();
+if(preMonth>9&&preDate.getDate()>9){
+      var datastart ="2017-"+preMonth+"-"+preDate.getDate()+"T00:00:00.000Z";
+}else if(preMonth>9&&preDate.getDate()<10){
+      var datastart ="2017-"+preMonth+"-0"+preDate.getDate()+"T00:00:00.000Z";
+  }else if(preMonth<10&&preDate.getDate()>9){
+      var datastart ="2017-0"+preMonth+"-"+preDate.getDate()+"T00:00:00.000Z";
+  }else{
+      var datastart ="2017-0"+preMonth+"-0"+preDate.getDate()+"T00:00:00.000Z";
+  }
+  
+  if(month>9&&date.getDate()>9){
+      var dataend ="2017-"+month+"-"+date.getDate()+"T00:00:00.000Z";
+  }else if(month>9&&date.getDate()<10){
+      var dataend ="2017-"+month+"-0"+date.getDate()+"T00:00:00.000Z";
+  }else if(month<10&&date.getDate()>9){
+      var dataend ="2017-0"+month+"-"+date.getDate()+"T00:00:00.000Z";
+  }else{
+      var dataend ="2017-0"+month+"-0"+date.getDate()+"T00:00:00.000Z";
+  }
+  //var datastart ="2017-"+preMonth+"-"+preDate.getDate()+"T00:00:00.000Z";
+  //var datastart ="2017-01-01T00:00:00.000Z";
+  //var dataend ="2017-"+month+"-"+date.getDate()+"T00:00:00.000Z";
+  //var dataend ="2017-01-02T00:00:00.000Z";
+  var interval ="30m";
+  
+  var sensorLen =0;
+
 
 var options = {
       url: "https://api.thingplus.net/v1/gateways/"+gateway+"/sensors?embed=series&series[dataStart]="+datastart+"&series[dataEnd]="+dataend+"&series[interval]="+interval,
@@ -27,6 +62,7 @@ var options = {
           "bearer":auth
       }
     };
+    
 
 // for(var j=0; j<keyword.length;j++){
     
@@ -63,6 +99,8 @@ var options = {
 
 router.get("/", function(req, res,next){
 request(options,function(error, response){
+
+
   var data = JSON.parse(response.body);
   for (var i = 0; i < data.length; i++){
      var newData = data[i];
@@ -86,8 +124,11 @@ request(options,function(error, response){
          temper2=newData.series.data;
      }
   }
-  
-  for(var j =0; j<hum1.length; j+=2){
+  if(hum1.length==0){
+      sensorLen = hum2.length;
+  }
+
+  for(var j =0; j<sensorLen; j+=2){
     var nthing = new Nthing({
         factory:"daekyo",
         gateway:gateway,
@@ -102,17 +143,17 @@ request(options,function(error, response){
         light1 : light1[j],
         light2 : light2[j]
     });
+
     nthing.save(function(error){
       if(error)return console.log(error);
-      console.log("success!");
+      console.log("get Nthing data!");
     });
   }
   //req.flash("hi","hi");
   //res.json(newData);
-  console.log('dododo');
   if(error)return console.log(error);
 });
 
-  res.json("hi");
+  res.json("hi2");
 });
 module.exports = router;
