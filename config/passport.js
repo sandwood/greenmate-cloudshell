@@ -25,7 +25,7 @@ module.exports = function(passport){
     passport.use(new FacebookStrategy({
         clientID: "1805972802984860",
         clientSecret: "48c8d93553d87b2cb16f5552d54772d2",
-        callbackURL: "https://green-mate2-petercha90.c9users.io/auth/facebook/callback",
+        callbackURL: "https://greenmate-163904.appspot.com/auth/facebook/callback",
         profileFields: ['id', 'email','displayName', 'photos']
     },
     function(accessToken, refreshToken, profile, cb) {
@@ -103,7 +103,7 @@ module.exports = function(passport){
     //kakao
     passport.use(new KakaoStrategy({
             clientID: "df2f5c7a33d22a1115127d5e2265434d",
-            callbackURL: "https://green-mate2-petercha90.c9users.io/auth/kakao/callback"
+            callbackURL: "https://greenmate-163904.appspot.com/auth/kakao/callback"
     }, function(accessToken, refreshToken, profile, done){
             User.findOne({$and : [{id: profile.id + "@kakao.com"}, {block : 0}]}, function(err, user){
                 if(err){return done(err);}
@@ -167,7 +167,7 @@ module.exports = function(passport){
      passport.use(new NaverStrategy({
             clientID: "iK4kBMEDIkoRb_kdJIA7",
             clientSecret: "yqFVLyypmn", 
-            callbackURL: "https://green-mate2-petercha90.c9users.io/auth/naver/callback",
+            callbackURL: "https://greenmate-163904.appspot.com/auth/naver/callback",
             svcType: 0
     }, function(accessToken, refreshToken, profile, done){
         
