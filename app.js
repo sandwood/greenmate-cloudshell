@@ -24,8 +24,8 @@ var cors = require("cors");
 //added
 var str2json = require('string-to-json');
 var gcs = require('@google-cloud/storage')({
-  projectId: "greentest-163904",
-  keyFilename: '../config/keyfile',
+  projectId: "greenmate-163904",
+  keyFilename: './config/keyfile',
   credentials: require('./config/keyfile')
 });
 //db updated every day Nthing!
