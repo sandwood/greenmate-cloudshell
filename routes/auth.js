@@ -182,7 +182,7 @@ router.put("/deviceToken/",
 router.post("/uploadImage", function(req, res){
     res.setHeader("Access-Control-Allow-Origin", "*");  
     var form = new multiparty.Form();
-    var bucket, bucketName = "green_images";
+    var bucket, bucketName = "greenmate_images";
     var picUrl= [];
     
     // get field name & value
