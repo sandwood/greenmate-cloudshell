@@ -4,7 +4,7 @@ var Plant = require("../models/plant");
 var User = require("../models/user");
 var Guide = require("../models/guide");
 var Diary = require("../models/diary");
-
+var bcrypt = require("bcrypt");
 
 // user registration. 
 router.post('/addManager', function(req,res){
@@ -17,25 +17,30 @@ router.post('/addManager', function(req,res){
         if (user){
           return res.status(400).json({isSuccess:0, error: "that user exists already."});
         }
+        
+      
         if (!user) {
-          
-            var user = new User({
-              username: req.body.username,
-              password: req.body.password,
-              authLevel : 1,
-              factory : req.body.factory,
-              call : req.body.call,
-              masterManager : false,
-              id: id,
-              block : 0
+            bcrypt.hash(req.body.password, 10, function(error, hash) {
+              if (error) return console.log(error);
+                var user = new User({
+                  username: req.body.username,
+                  password: hash,
+                  authLevel : 1,
+                  factory : req.body.factory,
+                  call : req.body.call,
+                  masterManager : false,
+                  id: id,
+                  block : 0
+                });
+                
+                user.save(function(error, user) {
+                    if(error){
+                        return res.status(error.code).json({isSuccess: 0, err: error});
+                    } 
+                    return res.status(201).json({isSuccess: 1});
+                });
             });
-            
-            user.save(function(error, user) {
-              if(error){
-                  return res.status(error.code).json({isSuccess: 0, err: error});
-              } 
-              return res.status(201).json({isSuccess: 1});
-            });
+           
         }
         else{
           return res.status(406).json({

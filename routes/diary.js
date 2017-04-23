@@ -197,7 +197,7 @@ router.post("/getDiaryList", function(req, res){
     var userDiaries = [];
     
     // ## 해당 유저의 식물 목록 조회 ##
-    Plant.find({$and: [{userSeq: reqUserSeq},{block:0}]}).sort({published_date: -1}).exec(function(err, plants) {
+    Plant.find({$and: [{userSeq: reqUserSeq},{block:0}]}).sort({published_date: 1}).exec(function(err, plants) {
         
         if (err) {
             console.log("error : "+err);
@@ -232,7 +232,7 @@ router.post("/getDiaryList", function(req, res){
             }
             
             // ## 일지 목록 조회 ##
-            Diary.find({$and:[findQuery, {block:0}]}).sort({published_date: -1}).skip((page-1)*num).limit(num).exec(function(err, diaries) {
+            Diary.find({$and:[findQuery, {block:0}]}).sort({published_date: 1}).skip((page-1)*num).limit(num).exec(function(err, diaries) {
                 if (err) {
                     console.log("error : "+err);
                     return res.status(200).json({isSuccess : 0, isLast: 0, diaries: []});
@@ -306,7 +306,7 @@ router.post("/getDiaryListOLD", function(req, res){
         
         var findQuery = {$and: [{userSeq: userSeq},{block:0}]}; 
         
-        Diary.find(findQuery).sort({published_date: -1}).skip((page-1)*num).limit(num).exec(function(err, diarydiaries){
+        Diary.find(findQuery).sort({published_date: 1}).skip((page-1)*num).limit(num).exec(function(err, diarydiaries){
             if(err) res.status(err.code).json({
                 isSuccess : 0,
                 isLast: 0,
@@ -315,7 +315,7 @@ router.post("/getDiaryListOLD", function(req, res){
             
             else{
                 
-                Plant.find({$and: [{userSeq: userSeq},{block:0}]}).sort({published_date: -1}).exec(function(err, plants){
+                Plant.find({$and: [{userSeq: userSeq},{block:0}]}).sort({published_date: 1}).exec(function(err, plants){
                     if(err) res.status(err.code).json({
                         isSuccess : 0,
                         isLast: 0,
@@ -426,7 +426,7 @@ router.post("/getDiaryListOLD", function(req, res){
         });
     }
     else if(listType == "mine"){
-        Diary.find({$and : [{userSeq: userSeq},{diaryType : 1},{block: 0}]}).skip((page-1)*num).limit(num).sort({published_date: -1}).exec(function(err, diarydiaries){
+        Diary.find({$and : [{userSeq: userSeq},{diaryType : 1},{block: 0}]}).skip((page-1)*num).limit(num).sort({published_date: 1}).exec(function(err, diarydiaries){
             if(err) res.status(err.code).json({
                 isSuccess : 0,
                 isLast: 0,
@@ -508,7 +508,7 @@ router.post("/getDiaryListOLD", function(req, res){
         });    
     }
     else{
-        Diary.find({$and: [{plantId: listType},{block:0}]}).sort({published_date: -1}).skip((page-1)*num).limit(num).exec(function(err, diarydiaries){
+        Diary.find({$and: [{plantId: listType},{block:0}]}).sort({published_date: 1}).skip((page-1)*num).limit(num).exec(function(err, diarydiaries){
             if(err) res.status(err.code).json({
                 isSuccess : 0,
                 isLast: 0,
